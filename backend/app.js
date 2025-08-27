@@ -3,7 +3,6 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
 const cors = require("cors");
-const ffmpeg = require("fluent-ffmpeg");
 const express = require("express");
 const multer = require("multer");
 const { logger } = require("./utils/logger");
@@ -46,14 +45,6 @@ app.use(
 );
 
 app.use(express.json({ limit: "10mb" }));
-
-// Configure FFmpeg paths - adjust these based on your system
-const FFMPEG_PATH = process.env.FFMPEG_PATH || "ffmpeg";
-const FFPROBE_PATH = process.env.FFPROBE_PATH || "ffprobe";
-
-// Set FFmpeg paths
-ffmpeg.setFfmpegPath(FFMPEG_PATH);
-ffmpeg.setFfprobePath(FFPROBE_PATH);
 
 // convert endpoint
 app.use("/convert", limiter, convertRouter);
