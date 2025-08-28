@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { CloudUpload, File, X } from "lucide-react";
 import { formatFileSize } from "../utils";
 import { FileContext } from "../context/fileContextInstance";
+import { toast } from "sonner";
 
 const Uploader = () => {
   const { file, setFile, supportedFormats } = useContext(FileContext);
@@ -14,8 +15,29 @@ const Uploader = () => {
     [setFile]
   );
 
+  const onDropRejected = useCallback((rejectedFiles) => {
+    if (rejectedFiles.length > 0) {
+      const tooManyFiles = rejectedFiles.find(
+        (rejectedFile) => rejectedFile.errors[0].code === "too-many-files"
+      );
+
+      const filesTooLarge = rejectedFiles.find(
+        (rejectedFile) => rejectedFile.errors[0].code === "file-too-large"
+      );
+
+      if (tooManyFiles) toast.error("You can only upload 1 file as a time");
+      if (filesTooLarge)
+        toast.error("Your file is too large", {
+          description: "You can only upload up to 5MB",
+        });
+    }
+  }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
+    maxFiles: 1, // The maximum number of files that can be uploaded
+    maxSize: 5 * 1024 * 1024, // 5MB in bytes can also be changed later
     accept: supportedFormats,
   });
 
